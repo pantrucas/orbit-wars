@@ -1,0 +1,13 @@
+{
+  "version": "0.1.0",
+  "created": "2026-05-10",
+  "commit": "<FILL_BEFORE_SUBMIT>",
+  "file": "main.py",
+  "format": "single python file or zip/gz/7z archive with main.py at top level",
+  "entrypoint": "last def in file: agent(obs) -> action",
+  "dependencies": [],
+  "external_assets": [],
+  "validation_passed": false,
+  "validation_timestamp": null,
+  "notes": "Update commit, sha256, and validation fields before submitting."
+}

@@ -1,0 +1,86 @@
+# Secrets and credentials
+kaggle.json
+.kaggle/
+.env
+.env.*
+*.pem
+*.key
+*.token
+*.secret
+
+# Local agent settings
+CLAUDE.local.md
+.claude/settings.local.json
+.codex/local.*
+.mcp.local.json
+.mcp.secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Kaggle data (do not commit competition data)
+data/raw/
+data/interim/
+data/processed/
+data/external/
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.csv
+*.parquet
+*.jsonl
+
+# Models and checkpoints
+models/checkpoints/
+models/exported/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.pkl
+*.joblib
+*.safetensors
+
+# Logs
+logs/
+*.log
+
+# Submission artifacts
+submission/*.tar.gz
+submission/*.zip
+submission/tmp/
+submission/build/
+submission/MANIFEST.local.json
+
+# Experiment heavy outputs
+experiments/results/**/*.pkl
+experiments/results/**/*.parquet
+experiments/results/**/*.npz
+experiments/results/**/replays/
+experiments/results/**/checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+.idea/
+
+# Keep placeholders and examples
+!.env.example
+!data/.gitkeep
+!models/.gitkeep
+!logs/.gitkeep

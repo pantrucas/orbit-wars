@@ -1,0 +1,17 @@
+name: baseline
+description: Greedy heuristic baseline agent
+
+agent:
+  module: submission.main
+  version: "0.1.0"
+
+strategy:
+  send_ratio: 0.6
+  safety_margin: 1.1
+  min_ships_to_attack: 2
+
+evaluation:
+  episodes: 50
+  seed: 42
+  opponents:
+    - random

@@ -1,0 +1,126 @@
+{
+  "wins": 20,
+  "total": 20,
+  "results": [
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 42
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 43
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 44
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 45
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 46
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 47
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 48
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 49
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 50
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 51
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 52
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 53
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 54
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 55
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 56
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 57
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 58
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 59
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 60
+    },
+    {
+      "winner": 1,
+      "agent_score": 50,
+      "opponent_score": 0,
+      "seed": 61
+    }
+  ]
+}

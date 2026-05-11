@@ -1,0 +1,23 @@
+name: submission_safe
+description: Safe mode config — read-only checks, no upload, no install
+
+mode: submission_safe
+
+allowed:
+  - read_files
+  - run_tests
+  - validate_submission
+  - package_dry_run
+  - inspect_logs
+  - update_docs
+
+forbidden:
+  - upload_to_kaggle
+  - download_data
+  - install_dependencies
+  - edit_credentials
+  - change_final_configs
+  - modify_submission_log_final_entries
+  - delete_files
+  - rewrite_git_history
+  - overwrite_final_package

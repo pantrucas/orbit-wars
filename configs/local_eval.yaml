@@ -1,0 +1,16 @@
+name: local_eval
+description: Local tournament configuration for pre-submission validation
+
+agent:
+  path: submission/main.py
+
+tournament:
+  episodes: 100
+  base_seed: 42
+  opponents:
+    - random
+  steps_per_episode: 200
+
+logging:
+  output_dir: experiments/results
+  save_replays: false
