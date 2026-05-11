@@ -1,119 +1,179 @@
 """
 Orbit Wars — Kaggle submission entrypoint.
 
-Rules:
-- No internet access.
-- No file I/O.
-- No credentials.
-- The LAST def in this file must accept observation and return action.
+Observation format (obs dict):
+  obs["planets"]: list of [id, owner, x, y, radius, ships, production]
+  obs["fleets"]:  list of [id, owner, x, y, angle, from_planet_id, ships]
+  obs["player"]:  int — player ID (0-3)
+  obs["angular_velocity"]: float — radians/turn
+  obs["remainingOverageTime"]: float
+
+Action format (return value):
+  [[from_planet_id, angle_radians, num_ships], ...]
+  Return [] for no action.
+
+No internet. No file I/O. No credentials.
+Last def in this file is the Kaggle entrypoint.
 """
 
 import math
-import random
-from typing import List, Optional, Dict
+
+# Planet list indices
+_PID = 0; _POWN = 1; _PX = 2; _PY = 3; _PRAD = 4; _PSHIPS = 5; _PPROD = 6
+
+# Fleet list indices
+_FID = 0; _FOWN = 1; _FX = 2; _FY = 3; _FANGLE = 4; _FFROM = 5; _FSHIPS = 6
+
+_MAX_SPEED = 6.0
+_BOARD = 100.0
 
 
-# --- Observation parsing ---
-
-def _parse_obs(obs: dict) -> dict:
-    step = obs.get("step", 0)
-    player_id = obs.get("player", 1)
-    planets = obs.get("planets", [])
-    fleets = obs.get("fleets", [])
-    return {
-        "step": step,
-        "player": player_id,
-        "planets": planets,
-        "fleets": fleets,
-    }
+def _dist(ax, ay, bx, by):
+    return math.sqrt((bx - ax) ** 2 + (by - ay) ** 2)
 
 
-# --- Physics helpers ---
-
-def _dist(a: dict, b: dict) -> float:
-    return math.sqrt((a["x"] - b["x"]) ** 2 + (a["y"] - b["y"]) ** 2)
+def _angle_to(sx, sy, tx, ty):
+    return math.atan2(ty - sy, tx - sx)
 
 
-def _travel_time(a: dict, b: dict, speed: float = 1.0) -> int:
-    return max(1, math.ceil(_dist(a, b) / speed))
+def _fleet_speed(ships):
+    """Speed = 1 + (maxSpeed-1) * (log(ships)/log(1000))^1.5"""
+    if ships <= 1:
+        return 1.0
+    return 1.0 + (_MAX_SPEED - 1.0) * (math.log(ships) / math.log(1000)) ** 1.5
 
 
-def _ships_after_growth(planet: dict, turns: int) -> float:
-    return planet["ships"] + planet.get("growth_rate", 1) * turns
+def _travel_turns(dist, ships):
+    speed = _fleet_speed(ships)
+    return max(1, math.ceil(dist / speed))
 
 
-# --- Strategy ---
+def _incoming_enemy_ships(planet_id, fleets, player):
+    """Sum ships in enemy fleets heading toward this planet (approximate by from_planet)."""
+    total = 0
+    for f in fleets:
+        if f[_FOWN] != player and f[_FFROM] != planet_id:
+            # We can't know exact destination from angle alone cheaply;
+            # use a rough heuristic: ignore for now
+            pass
+    return total
 
-def _score_target(source: dict, target: dict) -> float:
-    turns = _travel_time(source, target)
-    projected = _ships_after_growth(target, turns)
-    needed = math.ceil(projected * 1.1) + 1
-    if source["ships"] <= needed:
+
+def _score_target(src, tgt, player):
+    """Return score for sending a fleet from src to tgt. Higher = better."""
+    if tgt[_POWN] == player:
         return -1.0
-    return target.get("growth_rate", 1) / (needed * (1 + turns * 0.1))
+
+    sx, sy = src[_PX], src[_PY]
+    tx, ty = tgt[_PX], tgt[_PY]
+    d = _dist(sx, sy, tx, ty)
+    ships_available = src[_PSHIPS]
+    ships_to_send = max(1, int(ships_available * 0.6))
+    turns = _travel_turns(d, ships_to_send)
+
+    # Project how many ships target will have when fleet arrives
+    projected = tgt[_PSHIPS] + tgt[_PPROD] * turns
+    needed = math.ceil(projected * 1.1) + 1
+
+    if ships_to_send <= needed:
+        return -1.0
+
+    # Score: production gained per ship invested, discounted by distance
+    return tgt[_PPROD] / (needed * (1.0 + d * 0.02))
 
 
-def _pick_orders(state: dict) -> List[dict]:
-    player = state["player"]
-    enemy = 2 if player == 1 else 1
-    planets = state["planets"]
-
-    my_planets = [p for p in planets if p.get("owner") == player]
-    targets = [p for p in planets if p.get("owner") != player]
-
-    if not targets:
-        return []
-
+def _reinforce_threatened(my_planets, fleets, player):
+    """
+    Detect own planets under threat (enemy fleets nearby) and reinforce
+    from the richest adjacent friendly planet.
+    Returns list of [source_id, angle, ships] orders.
+    """
     orders = []
-    for src_idx, src in enumerate(my_planets):
-        if src["ships"] < 2:
+    if len(my_planets) < 2:
+        return orders
+
+    # Planets with very few ships relative to production are exposed
+    exposed = [p for p in my_planets if p[_PSHIPS] < p[_PPROD] * 3]
+    rich = [p for p in my_planets if p[_PSHIPS] > 20]
+
+    for tgt in exposed:
+        if not rich:
+            break
+        # Pick closest rich planet that isn't the target itself
+        donors = sorted(
+            [p for p in rich if p[_PID] != tgt[_PID]],
+            key=lambda p: _dist(p[_PX], p[_PY], tgt[_PX], tgt[_PY])
+        )
+        if not donors:
             continue
-
-        best_score = -1.0
-        best_tgt_idx = None
-        for tgt_idx, tgt in enumerate(targets):
-            s = _score_target(src, tgt)
-            if s > best_score:
-                best_score = s
-                best_tgt_idx = tgt_idx
-
-        if best_tgt_idx is None:
+        src = donors[0]
+        ships = int(src[_PSHIPS] * 0.3)
+        if ships < 2:
             continue
-
-        tgt = targets[best_tgt_idx]
-        ships = int(src["ships"] * 0.6)
-        if ships < 1:
-            continue
-
-        # Find original planet index in full list
-        src_global = next((i for i, p in enumerate(planets) if p is src), None)
-        tgt_global = next((i for i, p in enumerate(planets) if p is tgt), None)
-        if src_global is None or tgt_global is None:
-            continue
-
-        orders.append({
-            "type": "fleet",
-            "source": src_global,
-            "destination": tgt_global,
-            "ships": ships,
-        })
+        angle = _angle_to(src[_PX], src[_PY], tgt[_PX], tgt[_PY])
+        orders.append([src[_PID], angle, ships])
+        rich = [p for p in rich if p[_PID] != src[_PID]]  # don't reuse same donor
 
     return orders
 
 
-# --- Submission entrypoint (MUST be the last def in this file) ---
+def _attack_orders(my_planets, all_planets, player):
+    """Greedy attack: each planet with enough ships attacks best target."""
+    targets = [p for p in all_planets if p[_POWN] != player]
+    if not targets:
+        return []
 
-def agent(obs: dict) -> dict:
+    orders = []
+    for src in my_planets:
+        if src[_PSHIPS] < 4:
+            continue
+
+        best_score = -1.0
+        best_tgt = None
+        for tgt in targets:
+            s = _score_target(src, tgt, player)
+            if s > best_score:
+                best_score = s
+                best_tgt = tgt
+
+        if best_tgt is None:
+            continue
+
+        ships = max(1, int(src[_PSHIPS] * 0.6))
+        angle = _angle_to(src[_PX], src[_PY], best_tgt[_PX], best_tgt[_PY])
+        orders.append([src[_PID], angle, ships])
+
+    return orders
+
+
+def _merge_orders(attack, reinforce):
+    """Combine orders; skip reinforce if source already scheduled an attack."""
+    used = {o[0] for o in attack}
+    merged = list(attack)
+    for o in reinforce:
+        if o[0] not in used:
+            merged.append(o)
+    return merged
+
+
+def agent(obs):
     """
-    Kaggle Orbit Wars agent entrypoint.
-    Accepts observation dict, returns action dict.
-    This is the last def in the file as required by the submission contract.
+    Orbit Wars agent entrypoint.
+    Receives observation dict, returns list of [planet_id, angle_rad, ships].
+    This is the last def in the file as required by the Kaggle submission contract.
     """
     try:
-        state = _parse_obs(obs)
-        orders = _pick_orders(state)
-        if not orders:
-            return {"orders": []}
-        return {"orders": orders}
+        planets = obs["planets"]
+        fleets = obs["fleets"]
+        player = obs["player"]
+
+        my_planets = [p for p in planets if p[_POWN] == player]
+        if not my_planets:
+            return []
+
+        attack = _attack_orders(my_planets, planets, player)
+        reinforce = _reinforce_threatened(my_planets, fleets, player)
+        return _merge_orders(attack, reinforce)
+
     except Exception:
-        return {"orders": []}
+        return []

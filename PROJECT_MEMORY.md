@@ -44,12 +44,10 @@ Update whenever project direction, datasets, models, experiments, submissions, o
 
 ## 4. Current Objective
 
-```
-<FILL: e.g. Build robust baseline agent and local validation harness>
-```
+Mejorar estrategia del agente sobre baseline-v0 (rating 600.0).
 
-Current target: `<FILL>`
-Current risk level: `<FILL: Low / Medium / High>`
+Current target: rating > 1000, top 50%
+Current risk level: Low — heartbeat validado, infraestructura operativa
 
 ---
 
@@ -107,7 +105,7 @@ Current risk level: `<FILL: Low / Medium / High>`
 
 | Rank | Date | Submission ID | File | Commit | Rating/Score | Notes |
 |---|---|---|---|---|---|---|
-| 1 | `<FILL>` | `<FILL>` | `<FILL>` | `<FILL>` | `<FILL>` | `<FILL>` |
+| 1 | 2026-05-11 | 001 | submission/main.py | ce9eb4a | baseline-v0 greedy heuristic heartbeat | 600.0 — rank 1460/2475 | Enviado ✓ | Heartbeat. Agente válido, rating bajo esperado. |
 
 Full history: `SUBMISSION_LOG.md`
 

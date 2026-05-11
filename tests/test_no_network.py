@@ -22,13 +22,14 @@ def load_agent():
 def test_agent_makes_no_socket_connection():
     agent = load_agent()
     obs = {
-        "step": 1,
-        "player": 1,
         "planets": [
-            {"x": 10.0, "y": 10.0, "owner": 1, "ships": 20.0, "growth_rate": 2.0},
-            {"x": 90.0, "y": 90.0, "owner": 2, "ships": 5.0, "growth_rate": 1.0},
+            [0, 0, 10.0, 10.0, 3.0, 20.0, 2.0],
+            [1, 1, 90.0, 90.0, 3.0, 5.0, 1.0],
         ],
         "fleets": [],
+        "player": 0,
+        "angular_velocity": 0.035,
+        "remainingOverageTime": 60,
     }
 
     original_connect = socket.socket.connect
@@ -42,4 +43,4 @@ def test_agent_makes_no_socket_connection():
     with unittest.mock.patch.object(socket.socket, "connect", patched_connect):
         action = agent(obs)
 
-    assert isinstance(action, dict), "Agent must return a dict."
+    assert isinstance(action, list), "Agent must return a list."
