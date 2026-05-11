@@ -8,8 +8,8 @@ Status values: Green (compliant), Yellow (needs review), Red (blocked), Unknown 
 
 | Rule | Status | Evidence | Owner | Last checked | Notes |
 |---|---|---|---|---|---|
-| One Kaggle account only | Unknown | | Human | | Confirm account used |
-| Team size max 5 | Unknown | | Human | | List team members |
+| One Kaggle account only | Green | Account: pantrucas | Human | 2026-05-10 | Solo esta cuenta |
+| Team size max 5 | Green | Solo miembro: pantrucas | Human | 2026-05-10 | Equipo de 1 |
 | Max 5 submissions/day | Yellow | check_submission_limit.py planned | Agent/Human | 2026-05-10 | Enforce before submit |
 | Up to 2 final submissions | Unknown | | Human | | Verify exact final mechanism |
 | Data license Apache 2.0 | Green | Kaggle rules | Human | 2026-05-10 | |
